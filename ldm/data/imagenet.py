@@ -15,7 +15,7 @@ from taming.data.imagenet import str_to_indices, give_synsets_from_indices, down
 from taming.data.imagenet import ImagePaths
 
 from ldm.modules.image_degradation import degradation_fn_bsr, degradation_fn_bsr_light
-
+from DLproj import _GLOBAL_VARS
 
 def synset2idx(path_to_yaml="data/index_synset.yaml"):
     with open(path_to_yaml) as f:
@@ -151,8 +151,10 @@ class ImageNetTrain(ImageNetBase):
         if self.data_root:
             self.root = os.path.join(self.data_root, self.NAME)
         else:
-            cachedir = os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache"))
-            self.root = os.path.join(cachedir, "autoencoders/data", self.NAME)
+            # cachedir = os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache"))
+            # self.root = os.path.join(cachedir, "autoencoders/data", self.NAME)
+            cachedir = os.path.join(_GLOBAL_VARS['datasets'], "imagenet/160px")
+            self.root = os.path.join(cachedir, self.NAME)
 
         self.datadir = os.path.join(self.root, "data")
         self.txt_filelist = os.path.join(self.root, "filelist.txt")
@@ -217,8 +219,11 @@ class ImageNetValidation(ImageNetBase):
         if self.data_root:
             self.root = os.path.join(self.data_root, self.NAME)
         else:
-            cachedir = os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache"))
-            self.root = os.path.join(cachedir, "autoencoders/data", self.NAME)
+            # cachedir = os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache"))
+            # self.root = os.path.join(cachedir, "autoencoders/data", self.NAME)
+            cachedir = os.path.join(_GLOBAL_VARS['datasets'], "imagenet/160px")
+            self.root = os.path.join(cachedir, self.NAME)
+
         self.datadir = os.path.join(self.root, "data")
         self.txt_filelist = os.path.join(self.root, "filelist.txt")
         self.expected_length = 50000
@@ -377,7 +382,8 @@ class ImageNetSRTrain(ImageNetSR):
         super().__init__(**kwargs)
 
     def get_base(self):
-        with open("data/imagenet_train_hr_indices.p", "rb") as f:
+        file_path = os.path.join(_GLOBAL_VARS["stablediffusion"], "data/imagenet_train_hr_indices.p")
+        with open(file_path, "rb") as f:
             indices = pickle.load(f)
         dset = ImageNetTrain(process_images=False,)
         return Subset(dset, indices)
@@ -388,7 +394,8 @@ class ImageNetSRValidation(ImageNetSR):
         super().__init__(**kwargs)
 
     def get_base(self):
-        with open("data/imagenet_val_hr_indices.p", "rb") as f:
+        file_path = os.path.join(_GLOBAL_VARS["stablediffusion"], "data/imagenet_val_hr_indices.p")
+        with open(file_path, "rb") as f:
             indices = pickle.load(f)
         dset = ImageNetValidation(process_images=False,)
         return Subset(dset, indices)
